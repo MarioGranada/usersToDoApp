@@ -5,7 +5,7 @@ const taskRoutes = app => {
 
   app.route('/tasks/:userId').get(taskController.listTasksByUserId);
 
-  app.route('/tasks/:taskId').put(taskController.updateTaskByUserId);
+  app.route('/tasks/:taskId').put(taskController.updateTask);
 };
 
 module.exports = taskRoutes;

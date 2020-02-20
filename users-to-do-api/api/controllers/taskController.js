@@ -17,7 +17,7 @@ const createTaskByUserId = (request, response) => {
   });
 };
 
-const updateTaskByUserId = (request, response) => {
+const updateTask = (request, response) => {
   Task.findOneAndUpdate(
     { _id: request.params.taskId },
     request.body,
@@ -31,5 +31,5 @@ const updateTaskByUserId = (request, response) => {
 module.exports = {
   listTasksByUserId,
   createTaskByUserId,
-  updateTaskByUserId
+  updateTask
 };
