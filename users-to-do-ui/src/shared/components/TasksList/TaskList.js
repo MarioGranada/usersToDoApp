@@ -25,10 +25,8 @@ const TaskList = ({ shouldLoadTasks, userId }) => {
   }, [shouldLoadTasks, userId]);
 
   const onUpdateTaskHandler = taskData => {
-    console.log('data before update', taskData);
     updateTask(taskData).then(response => {
       let remindingTasks = tasksState.filter(item => item._id !== taskData._id);
-      console.log('response', response);
       setTasksState([...remindingTasks, taskData]);
     });
   };

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import * as usersToDoAPI from '../../services/usersToDoAPI/usersToDoAPI';
 
 import './UserList.scss';
 import UserItem from './UserItem/UserItem';
+import {
+  listUsers,
+  updateUser,
+  removeUser
+} from '../../services/usersToDoAPI/usersToDoAPI';
 
 const UserList = () => {
   const [usersState, setUsersState] = useState([]);
@@ -13,8 +17,7 @@ const UserList = () => {
   };
 
   useEffect(() => {
-    usersToDoAPI
-      .listUsers()
+    listUsers()
       .then(({ data }) => {
         setUsersState(data);
       })
@@ -22,6 +25,20 @@ const UserList = () => {
         console.error(error);
       });
   }, []);
+
+  const onUpdateUserHandler = userData => {
+    updateUser(userData).then(response => {
+      let remindingUsers = usersState.filter(item => item._id !== userData._id);
+      setUsersState([...remindingUsers, userData]);
+    });
+  };
+
+  const onRemoveUserHandler = userId => {
+    removeUser(userId).then(response => {
+      let remindingUsers = usersState.filter(item => item._id !== userId);
+      setUsersState(remindingUsers);
+    });
+  };
 
   return (
     <div className="user-list">
@@ -33,6 +50,8 @@ const UserList = () => {
             isExpanded={expandedState === `user_${item._id}`}
             userData={item}
             key={item._id}
+            onUpdateUserHandler={onUpdateUserHandler}
+            onRemoveUserHandler={onRemoveUserHandler}
           />
         ))}
       </div>
