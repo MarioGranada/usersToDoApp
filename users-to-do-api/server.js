@@ -10,7 +10,11 @@ const app = express();
 const port = process.env.PORT || 3030;
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/usersToDoApp');
+mongoose.connect('mongodb://localhost/usersToDoApp', {
+  useFindAndModify: false,
+  useUnifiedTopology: true,
+  useNewUrlParser: true
+});
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));

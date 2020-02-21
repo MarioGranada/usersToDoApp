@@ -17,7 +17,7 @@ const taskSchema = new Schema({
         enum: ['to do', 'done']
       }
     ],
-    default: ['to do']
+    default: 'to do'
   }
 });
 

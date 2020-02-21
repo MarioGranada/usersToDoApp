@@ -1,14 +1,12 @@
 import axios from 'axios';
 
 const baseAxiosInstance = axios.create({
-  baseURL: 'https://localhost:3030/'
+  baseURL: 'http://localhost:3030/'
 });
 
 // Tasks
 export const createTask = data => {
-  return baseAxiosInstance.post('/tasks', {
-    data
-  });
+  return baseAxiosInstance.post('/tasks', { ...data });
 };
 
 export const getTasksByUserId = userId => {
@@ -16,12 +14,13 @@ export const getTasksByUserId = userId => {
 };
 
 export const updateTask = data => {
-  return baseAxiosInstance.put(`/tasks/${data.id}`, { data });
+  console.log('data in API update', data._id);
+  return baseAxiosInstance.put(`/tasks/${data._id}`, { ...data });
 };
 
 // Users
 export const createUser = data => {
-  return baseAxiosInstance.post('/users', { data });
+  return baseAxiosInstance.post('/users', { ...data });
 };
 
 export const listUsers = () => {
@@ -33,7 +32,7 @@ export const getUserById = userId => {
 };
 
 export const updateUser = data => {
-  return baseAxiosInstance.put(`/users/${data.id}`, { data });
+  return baseAxiosInstance.put(`/users/${data._id}`, { ...data });
 };
 
 export const removeUser = userId => {
