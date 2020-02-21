@@ -7,6 +7,8 @@ import {
 import TaskItem from './TaskItem/TaskItem';
 import { FormControl, Button, TextField } from '@material-ui/core';
 
+import './TaskList.scss';
+
 const TaskList = ({ shouldLoadTasks, userId }) => {
   const [tasksState, setTasksState] = useState([]);
   const [newTaskState, setNewTaskState] = useState({});
@@ -38,19 +40,22 @@ const TaskList = ({ shouldLoadTasks, userId }) => {
   };
 
   return (
-    <>
+    <div className="task-list-container">
       <div className="new-task-box">
         <FormControl>
           <Button
+            size="small"
             variant="contained"
             color="primary"
             onClick={() => {
               setIsCreatingTask(true);
+              setNewTaskState({});
             }}
           >
             Add Task
           </Button>
         </FormControl>
+
         {isCreatingTask && (
           <div className="new-task-form">
             <FormControl>
@@ -66,6 +71,7 @@ const TaskList = ({ shouldLoadTasks, userId }) => {
             </FormControl>
             <FormControl>
               <Button
+                size="small"
                 variant="contained"
                 color="primary"
                 onClick={onCreateTaskHandler}
@@ -73,11 +79,22 @@ const TaskList = ({ shouldLoadTasks, userId }) => {
                 Create Task
               </Button>
             </FormControl>
+            <FormControl>
+              <Button
+                size="small"
+                onClick={() => {
+                  setIsCreatingTask(false);
+                }}
+                variant="outlined"
+              >
+                Cancel
+              </Button>
+            </FormControl>
           </div>
         )}
       </div>
 
-      <div className="task-list-container">
+      <div className="task-list-box">
         {tasksState.map(item => (
           <TaskItem
             key={item._id}
@@ -86,7 +103,7 @@ const TaskList = ({ shouldLoadTasks, userId }) => {
           />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

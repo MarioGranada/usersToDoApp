@@ -14,7 +14,6 @@ export const getTasksByUserId = userId => {
 };
 
 export const updateTask = data => {
-  console.log('data in API update', data._id);
   return baseAxiosInstance.put(`/tasks/${data._id}`, { ...data });
 };
 

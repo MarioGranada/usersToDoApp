@@ -11,6 +11,8 @@ import {
 
 import EditIcon from '@material-ui/icons/Edit';
 
+import './TaskItem.scss';
+
 const TaskItem = ({ taskData, onUpdateTaskHandler, onDeleteTaskHandler }) => {
   const [taskState, setTaskState] = useState(taskData);
   const [isEditing, setIsEditingState] = useState(false);
@@ -31,6 +33,10 @@ const TaskItem = ({ taskData, onUpdateTaskHandler, onDeleteTaskHandler }) => {
                 setTaskState({ ...taskState, description: e.target.value });
               }}
               value={taskState.description}
+              label="Task Description"
+              multiline
+              rows="5"
+              variant="outlined"
             />
           )}
         </div>
@@ -51,17 +57,32 @@ const TaskItem = ({ taskData, onUpdateTaskHandler, onDeleteTaskHandler }) => {
           </Select>
         </FormControl>
         {isEditing ? (
-          <FormControl>
-            <Button
-              onClick={() => {
-                onUpdateTaskHandler(taskState);
-              }}
-              variant="contained"
-              color="primary"
-            >
-              Update Task
-            </Button>
-          </FormControl>
+          <>
+            <FormControl>
+              <Button
+                size="small"
+                onClick={() => {
+                  onUpdateTaskHandler(taskState);
+                  setIsEditingState(false);
+                }}
+                variant="contained"
+                color="primary"
+              >
+                Update Task
+              </Button>
+            </FormControl>
+            <FormControl>
+              <Button
+                size="small"
+                onClick={() => {
+                  setIsEditingState(false);
+                }}
+                variant="outlined"
+              >
+                Cancel
+              </Button>
+            </FormControl>
+          </>
         ) : null}
 
         <div className="controls-row">
