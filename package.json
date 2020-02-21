@@ -1,0 +1,25 @@
+{
+  "name": "userstodo",
+  "version": "1.0.0",
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app) using `yarn`.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "cd users-to-do-ui && npm start",
+    "server": "cd users-to-do-api && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarioGranada/usersToDoApp.git"
+  },
+  "author": "Mario Granada",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarioGranada/usersToDoApp/issues"
+  },
+  "homepage": "https://github.com/MarioGranada/usersToDoApp#readme",
+  "devDependencies": {
+    "concurrently": "^5.1.0"
+  }
+}
