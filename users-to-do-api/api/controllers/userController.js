@@ -40,7 +40,7 @@ const updateUser = (request, response) => {
 
 const removeUser = (request, response) => {
   console.log('[Removing User]', request.params, request.body);
-  User.remove({ _id: request.params.userId }, (error, task) => {
+  User.deleteOne({ _id: request.params.userId }, (error, task) => {
     if (error) response.send(error);
     response.json({ msg: 'Used deleted' });
   });
