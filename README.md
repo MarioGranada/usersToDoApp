@@ -1,72 +1,131 @@
-User To Do App
-==============
+# Users To-Do App
 
-## Please refer to develop branch
+A MERN-style users and tasks application. The API exposes user CRUD plus task create, list-by-user, and update endpoints over Express and Mongoose; the UI lists users, creates tasks for a selected user, and updates task state.
 
-### Important disclaimer
-Main code is at `develop` branch which is intended to be merged into `master` at a given tag/version point as per any real product project scenario.
+The `master` branch is a scaffold: its UI is still the default Create React App screen. The implemented application lives on the `develop` branch, which the repository README calls the main branch. Check out `develop` before running the app.
 
-## Requirements
+## Features
 
-* MongoDB instance up and running. For any reference please follow [MongoDB environment set up](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/).
+- User list, create, read, update, and delete endpoints.
+- Task creation, listing by user, and update endpoints.
+- React UI with a header, user list, task list, and footer.
+- Material UI components and SCSS styles.
+- Axios service layer for all API calls.
+- Concurrent root script for API and UI during development.
+- Mongoose models for users and tasks with references.
+- Nodemon-based API development server.
 
-* Node v13.8.0 or similar
+## Tech stack
 
-* NPM 6.13.7 or yarn
+| Layer | Technology |
+| --- | --- |
+| UI | React 16 (Create React App 3) |
+| UI library | Material UI 4 + node-sass |
+| HTTP client | Axios |
+| API | Express 4 |
+| Database | MongoDB + Mongoose 5 |
+| Tooling | nodemon + concurrently |
 
-## Running steps
+## Project structure
 
-In the root folder, please run:
+```text
+usersToDoApp/                  # master = scaffold; origin/develop = implementation
+├── package.json               # Only on develop: client, server, dev scripts
+├── users-to-do-api/
+│   ├── server.js              # Express app (port 3030 on develop)
+│   ├── api/
+│   │   ├── controllers/       # userController, taskController
+│   │   ├── models/            # userModel, taskModel
+│   │   └── routes/            # index, userRoutes, taskRoutes
+│   └── package.json
+└── users-to-do-ui/
+    ├── src/
+    │   ├── containers/HomeContainer/
+    │   ├── shared/components/ # Header, Footer, UserList, TasksList
+    │   ├── shared/services/usersToDoAPI/
+    │   ├── App.js
+    │   └── index.js
+    └── package.json
+```
 
-### npm install
-Installs root dependencies that are required in order to run both server and client apps.
+## Getting started
 
-#### cd users-to-do-api && npm install
-Navigates through server app and installs all its dependencies
+### Requirements
 
-#### cd users-to-do-ui && npm install
-Navigates through client app and installs all its dependencies
+- Node.js 14 or 16 recommended; CRA 3, `node-sass` 4, and Mongoose 5 are legacy and may fail on current Node versions.
+- npm or Yarn 1.x.
+- A running MongoDB instance at `mongodb://localhost/usersToDoApp` (or an updated connection string).
+- The `develop` branch checked out; `master` does not contain the implemented UI or the root scripts.
 
-### npm run dev
-Runs both server and client concurrently at the same time. No need to navigate through respective folders and start them up.
+### 1. Install dependencies
 
-Alternatively, you can run in the this order:
+```bash
+git checkout develop        # or: git checkout -b develop origin/develop
+npm install                 # root: concurrently
+cd users-to-do-api && npm install
+cd ../users-to-do-ui && npm install
+```
 
-#### cd users-to-do-api && npm start 
-Navigates through server app and starts it up
+### 2. Run locally
 
-#### cd users-to-do-ui && npm start 
-Navigates through client app and starts it up
+**Start both apps from the root (develop)**
 
-API app runs in the development mode at:<br />
-[http://localhost:3030](http://localhost:3030).
+```bash
+npm run dev
+```
 
-There are serveral tools such as postman and jmeter which you can use in order to test up and do some playground with the given endpoints at the server. Feel free to use the tool of your preference.
+Runs the API on port 3030 and the CRA UI on port 3000.
 
-UI app runs in the development mode at:<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**Or start them separately**
 
-Both app will reload if you make edits in any of them.<br />
+```bash
+cd users-to-do-api && npm start
+```
 
-## Addittional Available Scripts for the UI
+Open http://localhost:3030.
 
-### `yarn test`
-Launches the test runner.
+Run `cd users-to-do-ui && npm start` in a second terminal for the UI at http://localhost:3000.
 
-### `yarn test --u --watch`
-Launches the test runner in watch mode.
+### Available scripts
 
-## API Endpoints Overview
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Run API and UI together (develop root only). |
+| `npm run server` | Start the API through the root script (develop only). |
+| `npm run client` | Start the UI through the root script (develop only). |
+| `cd users-to-do-api && npm start` | Start nodemon and the Express API. |
+| `cd users-to-do-ui && npm start` | Start CRA on port 3000. |
+| `cd users-to-do-ui && npm run build` | Create a production UI build. |
+| `cd users-to-do-ui && npm test` | Run the CRA test runner. |
 
-| Prefix        | Verb   | URI Pattern                              | Controller#Action            |
-----------------|--------|------------------------------------------|------------------------------|
-| users         | GET    | /users(.:format)                         | userController#listUsers     |
-|               | POST   | /users(.:format)                         | userController#createUser    |
-|               | GET    | /users/:id(.:format)                     | users#getUserById            |
-|               | PUT    | /users/:id(.:format)                     | users#updateUser             |
-|               | DELETE | /users/:id(.:format)                     | users#removeUser             |
-| tasks         | POST   | /tasks/(.:format)                        | tasks#createTaskByUserId     |
-|               | GET    | /tasks/:userId(.:format)                 | tasks#listTasksByUserId      |
-|               | PUT    | /tasks/:taskId(.:format)                 | tasks#updateTask             |
+## How it works
+
+`users-to-do-api/server.js` connects Mongoose to `mongodb://localhost/usersToDoApp`, applies CORS and body parsing, registers the combined routes, and listens on `process.env.PORT || 3030` on `develop` (3000 on `master`).
+
+`api/routes/userRoutes.js` maps `/users` CRUD to `userController`; `api/routes/taskRoutes.js` maps task creation, listing by user, and update to `taskController`.
+
+`userModel` stores a name and an array of task references; `taskModel` stores a description, a user reference, and a `state` array constrained to `to do` or `done`.
+
+The UI’s `shared/services/usersToDoAPI/usersToDoAPI.js` creates an Axios instance with `baseURL: "http://localhost:3030/"` and exports one function per endpoint.
+
+`App.js` composes the header, `HomeContainer`, and footer; `HomeContainer` renders `UserList`, and each `UserItem` expands to a `TaskList` for that user. There is no router or Redux; the app is a single container with props and service calls, as the source comments explain.
+
+## Deployment
+
+- Target: GitHub Actions can build the CRA UI and publish `build/` to GitHub Pages.
+- The API needs a Node host and MongoDB Atlas, or replacement with Supabase. Local MongoDB is not reachable from a deployed frontend.
+- Move the Mongo connection string and the Axios `baseURL` into environment variables before deploying.
+- The UI is a CRA SPA; a static host needs SPA fallback only if routing is added later.
+
+## Notes and limitations
+
+- `master` is not the implemented app: the UI is the default CRA screen and there is no root `package.json`. Use `origin/develop`.
+- The API port differs by branch: 3030 on `develop`, 3000 on `master`. The UI service points at 3030.
+- `node-sass` 4 and CRA 3 are legacy and often fail to install on modern Node versions.
+- Mongoose 5 connection options in `develop` are deprecated in newer MongoDB drivers.
+- There are no environment variables; the Mongo URI and API URL are hardcoded.
+- The UI has only the default CRA test.
+
+---
 
 **Author:** Mario Granada
