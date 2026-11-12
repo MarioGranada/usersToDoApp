@@ -1,0 +1,16 @@
+.task-description {
+  width: 120px;
+  word-wrap: break-word;
+}
+
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 10px 0;
+  border-bottom: 1px solid;
+}
+
+.controls-row .MuiSvgIcon-root {
+  cursor: pointer;
+}

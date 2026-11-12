@@ -1,0 +1,15 @@
+{
+  "name": "users-to-do-app",
+  "private": true,
+  "description": "Users and tasks manager: Vite + React UI (users-to-do-ui/) and Express API (users-to-do-api/).",
+  "scripts": {
+    "dev:api": "npm run dev --prefix users-to-do-api",
+    "dev:ui": "yarn --cwd users-to-do-ui dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarioGranada/usersToDoApp.git"
+  },
+  "author": "Mario Granada",
+  "license": "ISC"
+}

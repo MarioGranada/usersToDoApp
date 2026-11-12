@@ -1,0 +1,16 @@
+.new-task-box .MuiFormControl-root {
+  flex-direction: row;
+}
+
+.new-task-form .MuiFormControl-root {
+  margin: 0 5px;
+}
+
+.new-task-box {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-list-container {
+  width: 100%;
+}
