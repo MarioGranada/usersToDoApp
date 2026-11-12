@@ -1,39 +1,39 @@
 # Users To-Do App — Working Memory
 
-_Last updated: 2026-11-02_
+_Last updated: 2026-11-12_
 
 ## Current status
 
-- User and task CRUD endpoints are implemented on `develop`.
-- The UI lists users and tasks and calls the API through Axios.
-- `master` remains a scaffold with the default CRA screen.
-- No tests, CI, or environment configuration.
+- `develop` (the real UI) merged into the Vite `master` on 2026-11-12; `master` is now the app.
+- Live on Vercel: https://users-to-do-app.vercel.app (pushes to `master` deploy production).
+- One Vercel project with Services: the Vite UI + the Express 5 API under `/api`.
+- Users and tasks live in the `users_todo` schema of the shared Supabase Postgres (`portfolio-db`); MongoDB is gone.
+- Nightly Vercel Cron (04:00 UTC) calls `/api/cron/reset` to restore 3 sample users and 5 tasks.
+- Add/rename/remove user and add/edit task verified in headless Chrome against production; 1 Vitest test passes.
 
 ## Key decisions
 
 - Kept the UI as a single container with a service layer, matching the original scope.
-- Used Mongoose references between users and tasks instead of embedding tasks.
+- Postgres with a foreign key (cascade delete) instead of Mongoose references.
+- The API keeps the `_id` / `userId` names so the UI needed no data-shape changes.
+- Same-origin `/api` (Vite proxy locally): CORS and the hardcoded `localhost:3030` are gone.
+- `node-sass` → `sass`, MUI `ExpansionPanel` → `Accordion`, axios 1.x; React stays on 16.
 
 ## Known limitations and follow-ups
 
-- Legacy toolchain (CRA 3, node-sass 4, Mongoose 5).
-- No authentication, validation layer, or cascade deletion.
-- Hardcoded Mongo URI and API URL.
-- No tests beyond the CRA default.
+- No authentication; the public demo is shared until the nightly reset.
+- After a rename the UI moves the user to the end of the list until reload.
 
 ## Mistakes to avoid
 
-- Running the app from `master` shows the default CRA page.
-- Starting the UI without MongoDB leaves lists empty and logs connection errors.
-- Assuming the API runs on 3000; `develop` uses 3030.
-- Installing with a modern Node version may fail on `node-sass`.
+- Mounting API routes without the `/api` prefix: Vercel forwards the original path.
+- Using Testing Library v10+ APIs (`waitFor`, `getByRole({ name })`) with the v9 dependency.
+- Printing `.env.local` values or committing them.
 
 ## Next steps
 
-- Merge `develop` into `master` or make `develop` the default branch.
-- Move the Mongo URI and API URL into environment variables.
-- Upgrade or replace the legacy CRA/node-sass toolchain.
-- Add auth and cascade deletion for tasks.
+- Add API tests and more UI tests (tasks flow).
+- Consider upgrading React/MUI together.
 
 ---
 

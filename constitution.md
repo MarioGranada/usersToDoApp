@@ -15,12 +15,13 @@ This document defines the non-negotiable foundations for this repository. Read i
 
 | Layer | Choice | Rationale |
 | --- | --- | --- |
-| UI | React 16 (Create React App 3) | The project was built with the CRA toolchain of its era. |
-| UI library | Material UI 4 + node-sass | Component library and SCSS styling used by the original implementation. |
+| UI | React 16 + Vite 8 | Migrated from CRA 3; React stays on 16 with the classic JSX transform. |
+| UI library | Material UI 4 + Sass (dart-sass) | Component library and SCSS styling used by the original implementation. |
 | HTTP client | Axios | A small service layer wraps all API calls. |
-| API | Express 4 | User and task routes with controllers. |
-| Database | MongoDB + Mongoose 5 | Documents for users and tasks with references. |
-| Tooling | nodemon + concurrently | API reloads and both apps run from one root command. |
+| API | Express 5 | User and task routes; runs as a Vercel Function. |
+| Database | Supabase Postgres (postgres.js) | Durable storage on serverless hosting; one schema (`users_todo`) in the shared portfolio database. Replaced MongoDB. |
+| Hosting | Vercel Services + Cron | UI and API ship together on one origin; nightly demo reset. |
+| Tests | Vitest + Testing Library | Replaced the CRA test runner. |
 
 **Rule of thumb:** a new dependency must solve a concrete problem that the current stack cannot solve cleanly. Justify it in the change that introduces it.
 
@@ -28,25 +29,28 @@ This document defines the non-negotiable foundations for this repository. Read i
 
 ### 1. Scope
 
-A full-stack CRUD exercise from an earlier portfolio period. It demonstrates Express routing, Mongoose models, and a service-layer React UI. It is not a production task manager: there is no auth, validation layer, or durable deployment.
+A full-stack CRUD exercise from an earlier portfolio period. It demonstrates Express routing, a relational data model, and a service-layer React UI. It is not a production task manager: there is no auth. The public demo is kept clean by a nightly reset.
 
 ### 2. Environment Isolation
 
-- This project has no runtime secrets. Do not introduce `.env` files unless a real secret or environment-specific URL appears.
-- If configuration is added, use environment variables and document them in the README.
-- Never commit keys, tokens, database URLs, or credentials.
+- Runtime configuration comes from environment variables: `POSTGRES_URL` / `POSTGRES_URL_NON_POOLING` (Supabase integration) and `CRON_SECRET`. Locally they live in the gitignored root `.env.local` (`vercel env pull .env.local`).
+- Document every variable in the README and `AGENTS.md`.
+- Never commit keys, tokens, database URLs, or credentials, and never log them or send database errors to the browser.
 
 ### 3. Architecture
 
-- Keep API request logic in the UI service layer and database logic in controllers/models.
-- Routes compose controllers; controllers do not build routes.
+- Keep API request logic in the UI service layer and SQL in the API (`app.js`, `db/`).
+- Every API route lives under `/api`; the UI calls the same origin.
+- The API never reads files at runtime; SQL lives in `users-to-do-api/db/sql.js`.
+- The reset endpoint refuses any request without `Authorization: Bearer $CRON_SECRET`.
 - The UI stays a single container unless routing or shared state is genuinely needed.
 
 ### 4. Data and State
 
-- MongoDB is the source of truth for users and tasks.
-- Tasks reference users by ObjectId; the API does not enforce cascade deletion.
-- The UI refetches after mutations rather than keeping a client cache.
+- The `users_todo` schema is the source of truth for users and tasks. Schema and seed changes stay idempotent (`npm run db:migrate --prefix users-to-do-api`).
+- Tasks reference users with a foreign key; deleting a user cascades to their tasks.
+- API rows keep the `_id` / `userId` names the UI expects.
+- Only touch the `users_todo` schema; the database is shared with other portfolio apps.
 
 ### 5. Styling and UX
 
@@ -56,22 +60,21 @@ A full-stack CRUD exercise from an earlier portfolio period. It demonstrates Exp
 
 ### 6. Quality Gates
 
-- `cd users-to-do-ui && npm run build` is the main gate.
+- `yarn --cwd users-to-do-ui build`, `test` and `lint` are the gates.
 - Manually test user CRUD, task creation, task listing by user, and task state updates.
-- Confirm the UI handles an API-down or MongoDB-down state without a blank screen.
+- Confirm the UI handles an API-down or database-down state without a blank screen.
 
 ### 7. Deployment
 
-- UI: static CRA build for GitHub Pages.
-- API: a Node host plus MongoDB Atlas, or a Supabase replacement.
-- Move the Mongo URI and API base URL into environment variables before deploying.
+- One Vercel project (Services in `vercel.json`): the UI serves the Vite build, the API runs Express. Pushing to `master` deploys production.
+- The nightly cron `/api/cron/reset` restores the sample users and tasks.
+- Delete any test data written to production after verifying.
 
 ## What to Avoid
 
-- Working on `master` and expecting the implemented app.
-- Committing a local MongoDB URI or credentials.
-- Upgrading CRA or `node-sass` casually; the project depends on legacy versions.
-- Assuming task deletion cascades from users.
+- Committing database URLs, `.env*` files, or credentials.
+- Upgrading React or Material-UI casually; the UI depends on React 16 and MUI 4.
+- Writing to local files from the API (not durable or writable on Vercel).
 - Adding a router or Redux without a concrete need.
 
 ## Checklist Before Adding Anything New

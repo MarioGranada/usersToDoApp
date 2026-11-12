@@ -1,21 +1,22 @@
 {
-  "name": "userstodoapi",
+  "name": "users-to-do-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "description": "Express API for the users-to-do demo (Postgres on Supabase).",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --env-file-if-exists=../.env.local server.js",
+    "dev": "node --env-file-if-exists=../.env.local --watch server.js",
+    "db:migrate": "node --env-file-if-exists=../.env.local scripts/db.js migrate",
+    "db:reset": "node --env-file-if-exists=../.env.local scripts/db.js reset"
+  },
+  "engines": {
+    "node": "22.x"
   },
   "author": "Mario Granada",
   "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^2.0.2"
-  },
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "mongoose": "^5.9.1"
+    "express": "^5.1.0",
+    "postgres": "^3.4.9"
   }
 }

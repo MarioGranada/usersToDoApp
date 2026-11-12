@@ -1,24 +1,11 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# users-to-do-ui
 
-## Available Scripts
+Vite + React 16 + Material-UI 4 frontend of the Users To-Do App. See the [root README](../README.md) for setup, the API, and deployment.
 
-In the project directory, you can run:
-
-### `yarn install`
-Installs all project dependency.
-
-### `yarn start`
-#### or
-### `npm start`
-
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `yarn test`
-Launches the test runner.
-
-### `yarn test --u --watch`
-Launches the test runner in watch mode.
+| Command | Description |
+| --- | --- |
+| `yarn install --frozen-lockfile` | Install dependencies. |
+| `yarn dev` | Dev server on http://localhost:3001 (proxies `/api` to the API on :3030). |
+| `yarn build` | Production build into `dist/`. |
+| `yarn test` | Vitest (one run). |
+| `yarn lint` | ESLint. |

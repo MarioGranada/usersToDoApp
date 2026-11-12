@@ -1,26 +1,5 @@
-const express = require('express'),
-  bodyParser = require('body-parser'),
-  cors = require('cors'),
-  mongoose = require('mongoose'),
-  Task = require('./api/models/taskModel'),
-  User = require('./api/models/userModel'),
-  routes = require('./api/routes');
+// Local development server. On Vercel, the "backend" service serves app.js.
+const app = require('./app');
 
-const app = express();
 const port = process.env.PORT || 3030;
-
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/usersToDoApp', {
-  useFindAndModify: false,
-  useUnifiedTopology: true,
-  useNewUrlParser: true
-});
-
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-routes(app);
-
-app.listen(port);
-
-console.log('Users To Do App is loaded and running up on: ', port);
+app.listen(port, () => console.log(`Users To Do API listening on http://localhost:${port}/api`));

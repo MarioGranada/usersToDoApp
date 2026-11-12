@@ -1,130 +1,136 @@
 # Users To-Do App
 
-A MERN-style users and tasks application. The API exposes user CRUD plus task create, list-by-user, and update endpoints over Express and Mongoose; the UI lists users, creates tasks for a selected user, and updates task state.
+A users and tasks application. The UI lists users, lets you add, rename, and remove them, and expands each user into a task list where tasks can be created and moved between "to do" and "done". The API exposes user CRUD plus task create, list-by-user, and update endpoints over Express, backed by a `users_todo` schema in a hosted Supabase Postgres database (originally MongoDB). The UI and the API deploy together as one Vercel project.
 
-The `master` branch is a scaffold: its UI is still the default Create React App screen. The implemented application lives on the `develop` branch, which the repository README calls the main branch. Check out `develop` before running the app.
+## Live demo
+
+| | |
+| --- | --- |
+| **Live site** | https://users-to-do-app.vercel.app |
+| **Repository** | https://github.com/MarioGranada/usersToDoApp |
+| **Portfolio summary** | Users and tasks manager in React and Material-UI with expandable per-user task lists, backed by an Express REST API and Supabase Postgres, deployed as one Vercel project. |
+
+The demo is public: anyone can change users and tasks. The data is reset to three sample users with their tasks every night (04:00 UTC).
 
 ## Features
 
-- User list, create, read, update, and delete endpoints.
-- Task creation, listing by user, and update endpoints.
-- React UI with a header, user list, task list, and footer.
-- Material UI components and SCSS styles.
+- User list with add, rename, and remove (removing a user deletes their tasks).
+- Expandable user rows that load that user's tasks on demand.
+- Task creation and editing of description and state (`to do` / `done`).
+- Material-UI components and SCSS styles.
 - Axios service layer for all API calls.
-- Concurrent root script for API and UI during development.
-- Mongoose models for users and tasks with references.
-- Nodemon-based API development server.
+- Input validation on every API mutation.
 
 ## Tech stack
 
 | Layer | Technology |
 | --- | --- |
-| UI | React 16 (Create React App 3) |
-| UI library | Material UI 4 + node-sass |
+| UI | React 16 + Vite 8 |
+| UI library | Material-UI 4 + Sass |
 | HTTP client | Axios |
-| API | Express 4 |
-| Database | MongoDB + Mongoose 5 |
-| Tooling | nodemon + concurrently |
+| API | Express 5 (Vercel Function in production) |
+| Database | Supabase Postgres via postgres.js |
+| Hosting | Vercel Services (UI + API in one project), nightly Vercel Cron |
+| Tests | Vitest + Testing Library |
 
 ## Project structure
 
 ```text
-usersToDoApp/                  # master = scaffold; origin/develop = implementation
-├── package.json               # Only on develop: client, server, dev scripts
+usersToDoApp/
+├── vercel.json                # Services (users-to-do-ui, users-to-do-api), /api routing, nightly cron
+├── package.json               # Convenience scripts (dev:api, dev:ui)
 ├── users-to-do-api/
-│   ├── server.js              # Express app (port 3030 on develop)
-│   ├── api/
-│   │   ├── controllers/       # userController, taskController
-│   │   ├── models/            # userModel, taskModel
-│   │   └── routes/            # index, userRoutes, taskRoutes
-│   └── package.json
+│   ├── app.js                 # Express app; every route under /api
+│   ├── server.js              # Local dev server (port 3030)
+│   ├── db/                    # postgres.js client, schema + seed SQL, reset helper
+│   ├── routes/cron.js         # GET /api/cron/reset (needs CRON_SECRET)
+│   └── scripts/db.js          # npm run db:migrate | db:reset
 └── users-to-do-ui/
     ├── src/
     │   ├── containers/HomeContainer/
     │   ├── shared/components/ # Header, Footer, UserList, TasksList
-    │   ├── shared/services/usersToDoAPI/
-    │   ├── App.js
-    │   └── index.js
-    └── package.json
+    │   ├── shared/services/usersToDoAPI/   # Axios client (baseURL /api)
+    │   ├── App.jsx
+    │   └── App.test.jsx
+    └── vite.config.mjs        # Dev proxy: /api -> localhost:3030
 ```
 
 ## Getting started
 
 ### Requirements
 
-- Node.js 14 or 16 recommended; CRA 3, `node-sass` 4, and Mongoose 5 are legacy and may fail on current Node versions.
-- npm or Yarn 1.x.
-- A running MongoDB instance at `mongodb://localhost/usersToDoApp` (or an updated connection string).
-- The `develop` branch checked out; `master` does not contain the implemented UI or the root scripts.
+- Node.js 22 LTS.
+- npm (API) and Yarn 1.x (UI); lockfiles are committed for both.
+- The Vercel CLI, linked to the project, to pull the database URL (`vercel link`, then `vercel env pull .env.local` in the repo root).
+- Two terminals: one for the API and one for the UI.
 
 ### 1. Install dependencies
 
 ```bash
-git checkout develop        # or: git checkout -b develop origin/develop
-npm install                 # root: concurrently
-cd users-to-do-api && npm install
-cd ../users-to-do-ui && npm install
+npm ci --prefix users-to-do-api
+yarn --cwd users-to-do-ui install --frozen-lockfile
 ```
 
-### 2. Run locally
-
-**Start both apps from the root (develop)**
+### 2. Configure the database
 
 ```bash
-npm run dev
+vercel env pull .env.local                    # POSTGRES_URL, POSTGRES_URL_NON_POOLING, CRON_SECRET
+npm run db:migrate --prefix users-to-do-api   # idempotent: creates the schema and sample data
 ```
 
-Runs the API on port 3030 and the CRA UI on port 3000.
+`.env.local` is gitignored. Any Postgres works locally: set `POSTGRES_URL` to it instead.
 
-**Or start them separately**
+### 3. Run locally
 
 ```bash
-cd users-to-do-api && npm start
+npm run dev:api   # API on http://localhost:3030/api
+npm run dev:ui    # UI on http://localhost:3001
 ```
 
-Open http://localhost:3030.
-
-Run `cd users-to-do-ui && npm start` in a second terminal for the UI at http://localhost:3000.
+Vite proxies `/api` to the API, so the UI uses the same relative URLs as in production.
 
 ### Available scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Run API and UI together (develop root only). |
-| `npm run server` | Start the API through the root script (develop only). |
-| `npm run client` | Start the UI through the root script (develop only). |
-| `cd users-to-do-api && npm start` | Start nodemon and the Express API. |
-| `cd users-to-do-ui && npm start` | Start CRA on port 3000. |
-| `cd users-to-do-ui && npm run build` | Create a production UI build. |
-| `cd users-to-do-ui && npm test` | Run the CRA test runner. |
+| `npm run dev --prefix users-to-do-api` | API with `--watch` on port 3030. |
+| `npm run db:migrate --prefix users-to-do-api` | Apply the schema and seed (idempotent). |
+| `npm run db:reset --prefix users-to-do-api` | Delete all users and tasks and restore the seed. |
+| `yarn --cwd users-to-do-ui dev` | Vite dev server on port 3001. |
+| `yarn --cwd users-to-do-ui build` | Production build into `users-to-do-ui/dist`. |
+| `yarn --cwd users-to-do-ui test` | Vitest (one run). |
+| `yarn --cwd users-to-do-ui lint` | ESLint. |
 
 ## How it works
 
-`users-to-do-api/server.js` connects Mongoose to `mongodb://localhost/usersToDoApp`, applies CORS and body parsing, registers the combined routes, and listens on `process.env.PORT || 3030` on `develop` (3000 on `master`).
+`users-to-do-api/app.js` mounts every route under `/api`:
 
-`api/routes/userRoutes.js` maps `/users` CRUD to `userController`; `api/routes/taskRoutes.js` maps task creation, listing by user, and update to `taskController`.
+| Method | Path | Description |
+| --- | --- | --- |
+| GET | `/api/users` | List users. |
+| POST | `/api/users` | Create a user (`name`). |
+| GET / PUT / DELETE | `/api/users/:userId` | Read, rename, or delete a user (tasks cascade). |
+| GET | `/api/tasks/:userId` | List a user's tasks. |
+| POST | `/api/tasks` | Create a task (`description`, `userId`, optional `state`). |
+| PUT | `/api/tasks/:taskId` | Update a task's description and state. |
 
-`userModel` stores a name and an array of task references; `taskModel` stores a description, a user reference, and a `state` array constrained to `to do` or `done`.
+Rows are returned with `_id` and `userId` keys, the names the UI was written against when the API used MongoDB. Server errors return a generic message; database errors are only logged on the server.
 
-The UI’s `shared/services/usersToDoAPI/usersToDoAPI.js` creates an Axios instance with `baseURL: "http://localhost:3030/"` and exports one function per endpoint.
-
-`App.js` composes the header, `HomeContainer`, and footer; `HomeContainer` renders `UserList`, and each `UserItem` expands to a `TaskList` for that user. There is no router or Redux; the app is a single container with props and service calls, as the source comments explain.
+`App.jsx` composes the header, `HomeContainer`, and footer; `HomeContainer` renders `UserList`, and each `UserItem` expands to a `TaskList` for that user. There is no router or Redux; the app is a single container with props and service calls, as the source comments explain.
 
 ## Deployment
 
-- Target: GitHub Actions can build the CRA UI and publish `build/` to GitHub Pages.
-- The API needs a Node host and MongoDB Atlas, or replacement with Supabase. Local MongoDB is not reachable from a deployed frontend.
-- Move the Mongo connection string and the Axios `baseURL` into environment variables before deploying.
-- The UI is a CRA SPA; a static host needs SPA fallback only if routing is added later.
+- **Live:** https://users-to-do-app.vercel.app
+- One Vercel project with two [Services](https://vercel.com/docs/services) defined in `vercel.json`: the UI (Vite static build) and the API (Express as a Vercel Function). `/api/*` routes to the API, everything else to the UI.
+- Pushing to `master` deploys production.
+- The database comes from the Supabase integration on Vercel, which injects `POSTGRES_URL` into every environment. `CRON_SECRET` protects the reset endpoint.
+- A daily Vercel Cron calls `/api/cron/reset` at 04:00 UTC to restore the sample users and tasks.
 
 ## Notes and limitations
 
-- `master` is not the implemented app: the UI is the default CRA screen and there is no root `package.json`. Use `origin/develop`.
-- The API port differs by branch: 3030 on `develop`, 3000 on `master`. The UI service points at 3030.
-- `node-sass` 4 and CRA 3 are legacy and often fail to install on modern Node versions.
-- Mongoose 5 connection options in `develop` are deprecated in newer MongoDB drivers.
-- There are no environment variables; the Mongo URI and API URL are hardcoded.
-- The UI has only the default CRA test.
+- There is no authentication: every visitor shares and can change the same data until the nightly reset.
+- The UI updates its lists from the values it sent, so after a rename the user moves to the end of the list until reload.
+- Material-UI 4 is in maintenance mode; React stays on 16 (classic JSX transform).
 
 ---
 
